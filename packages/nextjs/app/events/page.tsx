@@ -26,6 +26,13 @@ const Events: NextPage = () => {
     eventName: "LiquidityRemoved",
   });
 
+  const { data: approvalEvents, isLoading: isApprovalLoading } = useScaffoldEventHistory({
+    contractName: "Balloons",
+    eventName: "Approval",
+    fromBlock: 0n,
+    watch: true,
+  });
+
   return (
     <>
       <div className="flex items-center flex-col flex-grow pt-10">
@@ -207,6 +214,29 @@ const Events: NextPage = () => {
               </table>
             </div>
           </div>
+        )}
+
+        {isApprovalLoading ? (
+          <tr>
+            <td colSpan={3} className="text-center">
+              Loading...
+            </td>
+          </tr>
+        ) : (
+          approvalEvents?.map((event, index) => (
+            <tr key={index}>
+              {/* Hiển thị địa chỉ người approve */}
+              <td>
+                <Address address={event.args.owner} />
+              </td>
+              {/* Hiển thị địa chỉ được cấp quyền (thường là DEX) */}
+              <td>
+                <Address address={event.args.spender} />
+              </td>
+              {/* Hiển thị số lượng token */}
+              <td>{event.args.value ? formatEther(event.args.value) : "0"}</td>
+            </tr>
+          ))
         )}
       </div>
     </>
